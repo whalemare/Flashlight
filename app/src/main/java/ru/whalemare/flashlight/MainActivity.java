@@ -7,6 +7,8 @@ import android.hardware.Camera.Parameters;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
+import android.view.animation.Animation;
+import android.view.animation.AnimationUtils;
 import android.widget.ImageView;
 import android.widget.Toast;
 
@@ -14,15 +16,17 @@ import android.widget.Toast;
 public class MainActivity extends Activity {
 
     ImageView imageView;
-    boolean hasFlash; // флаг поддержки устройством камеры
+    boolean hasFlash = false; // флаг поддержки устройством камеры
     private Camera camera;
-
+    Animation animation = null;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
         imageView = (ImageView) findViewById(R.id.imageView);
+        animation = AnimationUtils.loadAnimation(this, R.anim.alpha);
+        imageView.startAnimation(animation);
 
         // Проверяем поддержку вспышки в камере
         hasFlash = getApplicationContext().getPackageManager().hasSystemFeature(PackageManager.FEATURE_CAMERA_FLASH);
@@ -30,8 +34,10 @@ public class MainActivity extends Activity {
         if (!hasFlash) // Если камеры нет TODO открывать другое активити со светлым экраном.
                         // TODO + запомнить, что если нет фонарика, то всегда будет открывтаься оно
             Toast.makeText(getApplicationContext(), "Камеры нет", Toast.LENGTH_LONG).show();
-        else
-            Toast.makeText(getApplicationContext(), "Камера есть", Toast.LENGTH_SHORT).show();
+        else {
+            getCamera(); // получаем параметры камеры
+            turnOnFlash();
+        }
     }
 
     private Camera.Parameters params;
@@ -71,7 +77,6 @@ public class MainActivity extends Activity {
                 params = camera.getParameters();
                 params.setFlashMode(Camera.Parameters.FLASH_MODE_OFF);
                 camera.setParameters(params);
-                camera.stopPreview(); // ?
 
                 imageView.setImageResource(R.drawable.flashoff); // меняем рисунок
                 isFlashOn = false;
@@ -95,16 +100,10 @@ public class MainActivity extends Activity {
     }
 
     @Override
-    protected void onResume() {
-        super.onResume();
-        if (hasFlash)
-            turnOnFlash();
-    }
-
-    @Override
     protected void onPause() {
         super.onPause();
-    //    turnOffFlash();
+
+        turnOffFlash(); //Временно выключаем фонарик:
     }
 
     @Override
@@ -115,10 +114,6 @@ public class MainActivity extends Activity {
             camera.release();
             camera = null;
         }
-    }
-
-    @Override
-    protected void onDestroy() {
-        super.onDestroy();
+        Log.d("WHALETAG", "onStop() - зашли в метод");
     }
 }

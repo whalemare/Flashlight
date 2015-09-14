@@ -16,14 +16,4 @@
         android:clickable="true"
         android:contentDescription="@string/name_of_imagebutton" />
 
-    <Button
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="New Button"
-        android:id="@+id/button"
-        android:layout_below="@+id/imageView"
-        android:layout_alignLeft="@+id/imageView"
-        android:layout_alignStart="@+id/imageView"
-        android:clickable="true"
-        android:onClick="clickToImage" />
 </RelativeLayout>
